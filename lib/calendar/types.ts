@@ -22,6 +22,7 @@ export interface GoogleEvent {
   transparency?: 'opaque' | 'transparent';
   start?: GoogleEventDateTime;
   end?: GoogleEventDateTime;
+  recurrence?: string[];
   reminders?: {
     useDefault: boolean;
     overrides?: Array<{ method: 'popup' | 'email'; minutes: number }>;
@@ -40,4 +41,3 @@ export interface GoogleCalendarList {
   items?: GoogleCalendar[];
   nextPageToken?: string;
 }
-

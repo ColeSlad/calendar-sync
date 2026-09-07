@@ -9,6 +9,7 @@ import type {
 const DAY_ORDER: Weekday[] = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 const DAY_TOKENS: Record<string, Weekday[]> = {
   M: ['MO'],
+  MO: ['MO'],
   MON: ['MO'],
   MONDAY: ['MO'],
   T: ['TU'],
@@ -17,6 +18,7 @@ const DAY_TOKENS: Record<string, Weekday[]> = {
   TUES: ['TU'],
   TUESDAY: ['TU'],
   W: ['WE'],
+  WE: ['WE'],
   WED: ['WE'],
   WEDNESDAY: ['WE'],
   R: ['TH'],
@@ -26,6 +28,7 @@ const DAY_TOKENS: Record<string, Weekday[]> = {
   THURS: ['TH'],
   THURSDAY: ['TH'],
   F: ['FR'],
+  FR: ['FR'],
   FRI: ['FR'],
   FRIDAY: ['FR'],
   SA: ['SA'],
