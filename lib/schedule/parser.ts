@@ -48,6 +48,8 @@ const DAY_TOKENS: Record<string, Weekday[]> = {
 
 const TIME_RANGE = /\b(\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)?|[01]?\d:\d{2}|2[0-3]:\d{2})\s*(?:-|–|—|to)\s*(\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)?|[01]?\d:\d{2}|2[0-3]:\d{2})\b/i;
 const COURSE_CODE = /\b([A-Z]{2,8})\s*[- ]?\s*(\d{3,4}[A-Z]?)\b/;
+const COURSE_HEADER = /\b([A-Z]{2,8})\s*[- ]?\s*(\d{3,4}[A-Z]?)\s*\(([^)]+)\)/gi;
+const COMPONENT = /\b(Lec(?:ture)?|Dis(?:cussion)?|Lab(?:oratory)?|Rec(?:itation)?|Sem(?:inar)?|Studio|Clinic|Final|Exam)\b/gi;
 
 function normalizeMeridian(value: string): string {
   return value.toLowerCase().replace(/[.\s]/g, '');
@@ -180,6 +182,87 @@ function parseTable(block: ScheduleCaptureBlock): ScheduleMeetingDraft[] {
   });
 }
 
+function componentName(value: string): string | undefined {
+  const normalized = value.toLowerCase();
+  if (normalized.startsWith('lec')) return 'Lecture';
+  if (normalized.startsWith('dis')) return 'Discussion';
+  if (normalized.startsWith('lab')) return 'Lab';
+  if (normalized.startsWith('rec')) return 'Recitation';
+  if (normalized.startsWith('sem')) return 'Seminar';
+  if (normalized === 'studio') return 'Studio';
+  if (normalized === 'clinic') return 'Clinic';
+  return undefined;
+}
+
+function locationAfterTime(componentText: string, timeEnd: number): string | undefined {
+  const suffix = componentText.slice(timeEnd)
+    .replace(/^\s*(?:E[DS]T|C[DS]T|M[DS]T|P[DS]T|ET|CT|MT|PT|UTC|GMT)\b/i, '')
+    .replace(/^[\s|·,:;-]+/, '')
+    .replace(/[\s|·,:;-]+$/, '')
+    .trim();
+  if (!suffix || /^(?:tba|arranged|none|n\/a)$/i.test(suffix) || suffix.length > 100) {
+    return undefined;
+  }
+  if (/^online$/i.test(suffix)) return 'Online';
+
+  const words = suffix.split(/\s+/);
+  if (words.length % 2 === 0) {
+    const half = words.length / 2;
+    if (words.slice(0, half).join(' ').toLowerCase() === words.slice(half).join(' ').toLowerCase()) {
+      return words.slice(0, half).join(' ');
+    }
+  }
+  return suffix;
+}
+
+function parseCourseRegion(text: string): ScheduleMeetingDraft[] {
+  const courseMatches = Array.from(text.matchAll(COURSE_HEADER));
+  const meetings: ScheduleMeetingDraft[] = [];
+  for (let courseIndex = 0; courseIndex < courseMatches.length; courseIndex += 1) {
+    const match = courseMatches[courseIndex]!;
+    const start = (match.index ?? 0) + match[0].length;
+    const end = courseMatches[courseIndex + 1]?.index ?? text.length;
+    const courseText = text.slice(start, end);
+    const courseCode = `${match[1]}${match[2]}`;
+    const section = match[3]?.trim();
+    const componentMatches = Array.from(courseText.matchAll(COMPONENT));
+    for (let componentIndex = 0; componentIndex < componentMatches.length; componentIndex += 1) {
+      const componentMatch = componentMatches[componentIndex]!;
+      const component = componentName(componentMatch[1]!);
+      if (!component) continue;
+      const componentStart = (componentMatch.index ?? 0) + componentMatch[0].length;
+      const componentEnd = componentMatches[componentIndex + 1]?.index ?? courseText.length;
+      const componentText = courseText.slice(componentStart, componentEnd).trim();
+      const timeMatch = componentText.match(TIME_RANGE);
+      if (!timeMatch || timeMatch.index === undefined) continue;
+      const time = parseTimeRange(timeMatch[0]);
+      const days = parseDays(componentText.slice(0, timeMatch.index));
+      if (!time || days.length === 0) continue;
+      const result = meetingFromText(componentText, {
+        courseName: courseCode,
+        courseCode,
+        section,
+        component,
+        days,
+        startTime: time.startTime,
+        endTime: time.endTime,
+        location: locationAfterTime(componentText, timeMatch.index + timeMatch[0].length),
+        confidence: 0.98,
+      });
+      if (result) meetings.push(result);
+    }
+  }
+  return meetings;
+}
+
+function parseRegion(block: ScheduleCaptureBlock): ScheduleMeetingDraft[] {
+  const joined = (block.lines ?? []).join(' | ');
+  const componentMeetings = parseCourseRegion(joined);
+  if (componentMeetings.length > 0) return componentMeetings;
+  const fallback = meetingFromText(joined, { confidence: 0.75 });
+  return fallback ? [fallback] : [];
+}
+
 function assignOccurrences(meetings: ScheduleMeetingDraft[]): ScheduleMeetingDraft[] {
   const occurrences = new Map<string, number>();
   return meetings.map((meeting) => {
@@ -198,11 +281,7 @@ export function extractScheduleWithRules(capture: SchedulePageCapture): Schedule
   const meetings: ScheduleMeetingDraft[] = [];
   for (const block of capture.blocks) {
     if (block.kind === 'table') meetings.push(...parseTable(block));
-    else {
-      const joined = (block.lines ?? []).join(' | ');
-      const result = meetingFromText(joined, { confidence: 0.75 });
-      if (result) meetings.push(result);
-    }
+    else meetings.push(...parseRegion(block));
   }
 
   const deduplicated = Array.from(
