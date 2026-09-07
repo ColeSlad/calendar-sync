@@ -85,6 +85,7 @@ export interface SyncRun {
 
 export interface Settings {
   calendarId?: string;
+  managedCalendarIds: string[];
   autoSyncEnabled: boolean;
   syncIntervalMinutes: number;
   reminderMinutes: number[];
@@ -100,6 +101,7 @@ export interface AppState {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  managedCalendarIds: [],
   autoSyncEnabled: true,
   syncIntervalMinutes: 120,
   reminderMinutes: [1440, 60],
@@ -114,4 +116,3 @@ export const EMPTY_COUNTS: SyncCounts = {
   unavailable: 0,
   failed: 0,
 };
-

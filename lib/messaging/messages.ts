@@ -16,6 +16,7 @@ export type RuntimeRequest =
   | { type: 'DISCONNECT_GOOGLE' }
   | { type: 'SAVE_SETTINGS'; patch: Partial<Settings> }
   | { type: 'SET_COURSE_ENABLED'; courseId: string; enabled: boolean }
+  | { type: 'SET_COURSE_COLOR'; courseId: string; colorId?: string }
   | { type: 'DISCOVERED_COURSES'; courses: Course[] }
   | {
       type: 'COURSE_PAGE_SCAN';

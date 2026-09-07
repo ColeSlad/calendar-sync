@@ -59,6 +59,11 @@ export class StateRepository {
 
   async updateSettings(patch: Partial<Settings>): Promise<AppState> {
     const state = await this.read();
+    if (patch.calendarId && patch.calendarId !== state.settings.calendarId) {
+      state.settings.managedCalendarIds = Array.from(
+        new Set([...state.settings.managedCalendarIds, patch.calendarId]),
+      );
+    }
     state.settings = { ...state.settings, ...patch };
     await this.write(state);
     return state;
@@ -96,4 +101,3 @@ export class StateRepository {
     await this.write(state);
   }
 }
-

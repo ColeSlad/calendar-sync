@@ -21,6 +21,7 @@ export function parseDashboard(document: Document, baseUrl: string): Course[] {
   const links = document.querySelectorAll<HTMLAnchorElement>(
     'a.courseBox[href*="/courses/"], a[href*="/courses/"]',
   );
+  const firstTermCourses = document.querySelector('.courseList--coursesForTerm');
 
   for (const link of links) {
     const match = link.getAttribute('href')?.match(/\/courses\/(\d+)/);
@@ -47,7 +48,7 @@ export function parseDashboard(document: Document, baseUrl: string): Course[] {
       fullName: fullName || shortName || `Course ${match[1]}`,
       term,
       url: absoluteUrl(link.getAttribute('href')!, baseUrl),
-      enabled: true,
+      enabled: !termContainer || termContainer === firstTermCourses,
     });
   }
 
@@ -60,13 +61,30 @@ function headerIndex(headers: string[], pattern: RegExp, exclude?: RegExp): numb
   );
 }
 
-function dateFromCell(cell: Element | undefined): string | undefined {
+function dateFromCell(
+  cell: Element | undefined,
+  kind: 'due' | 'late' = 'due',
+): string | undefined {
   if (!cell) return undefined;
+  const times = Array.from(cell.querySelectorAll('time[datetime]'));
+  const labeled = times.find((time) => {
+    const label = time.getAttribute('aria-label') ?? '';
+    return kind === 'late'
+      ? /late due date/i.test(label)
+      : /due at/i.test(label) && !/late/i.test(label);
+  });
   const machineValue =
-    cell.querySelector('time')?.getAttribute('datetime') ||
+    labeled?.getAttribute('datetime') ||
+    (times.length === 1 ? times[0]?.getAttribute('datetime') : undefined) ||
     cell.querySelector('[data-datetime]')?.getAttribute('data-datetime') ||
     cell.querySelector('[data-time]')?.getAttribute('data-time');
-  const raw = machineValue || text(cell);
+  let raw = machineValue || text(cell);
+  if (!machineValue) {
+    const pattern = /([A-Z][a-z]{2}\s+\d{1,2}\s+at\s+\d{1,2}:\d{2}\s*[AP]M)/g;
+    const matches = raw.match(pattern) ?? [];
+    const candidate = kind === 'late' ? matches.at(-1) : matches[0];
+    if (candidate) raw = `${candidate.replace(' at ', `, ${new Date().getFullYear()} `)}`;
+  }
   if (!raw || /no due date|—|not available/i.test(raw)) return undefined;
   const millis = Date.parse(raw);
   return Number.isNaN(millis) ? undefined : new Date(millis).toISOString();
@@ -137,7 +155,10 @@ export async function parseCoursePage(
         course.url,
       );
       const status = statusFromRow(row);
-      const lateDueAt = lateDueIndex >= 0 ? dateFromCell(cells[lateDueIndex]) : undefined;
+      const lateDueAt =
+        lateDueIndex >= 0
+          ? dateFromCell(cells[lateDueIndex], 'late')
+          : dateFromCell(cells[dueIndex], 'late');
       const canonical = {
         courseId: course.id,
         assignmentId: id,
@@ -166,9 +187,8 @@ export async function parseCoursePage(
   }
 
   return {
-    complete: warnings.every((warning) => !warning.includes('did not contain')),
+    complete: warnings.length === 0,
     deadlines,
     warnings,
   };
 }
-

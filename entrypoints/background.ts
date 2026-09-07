@@ -68,6 +68,13 @@ export default defineBackground(() => {
             await repository.write(state);
             return { ok: true, state };
           }
+          case 'SET_COURSE_COLOR': {
+            const state = await repository.read();
+            const course = state.courses[request.courseId];
+            if (course) course.colorId = request.colorId;
+            await repository.write(state);
+            return { ok: true, state };
+          }
           case 'DISCOVERED_COURSES':
             return { ok: true, state: await repository.mergeCourses(request.courses) };
           case 'COURSE_PAGE_SCAN': {

@@ -23,6 +23,10 @@ function sourceId(event: GoogleEvent): string | undefined {
   return event.extendedProperties?.private?.calendarSyncSourceId;
 }
 
+function desiredHash(deadline: DeadlineItem, colorId?: string): string {
+  return `${deadline.sourceHash}:${colorId ?? 'default'}`;
+}
+
 export interface ReconcileInput {
   deadlines: DeadlineItem[];
   completeCourseIds: Set<string>;
@@ -97,9 +101,13 @@ export class DeadlineReconciler {
             deadline,
             calendarId,
             created.id ?? eventId,
+            state.courses[deadline.courseId]?.colorId,
           );
           run.counts.created += 1;
-        } else if (managed?.sourceHash === deadline.sourceHash) {
+        } else if (
+          managed?.sourceHash ===
+          desiredHash(deadline, state.courses[deadline.courseId]?.colorId)
+        ) {
           managed.lastSeenAt = startedAt;
           managed.missingCompleteScans = 0;
           run.counts.unchanged += 1;
@@ -116,6 +124,7 @@ export class DeadlineReconciler {
             deadline,
             calendarId,
             eventId,
+            state.courses[deadline.courseId]?.colorId,
           );
           if (becameComplete) run.counts.completed += 1;
           else run.counts.updated += 1;
@@ -169,13 +178,14 @@ export class DeadlineReconciler {
     deadline: DeadlineItem,
     calendarId: string,
     eventId: string,
+    colorId?: string,
   ): ManagedEvent {
     return {
       sourceId: deadline.sourceId,
       connectorId: deadline.connectorId,
       calendarId,
       eventId,
-      sourceHash: deadline.sourceHash,
+      sourceHash: desiredHash(deadline, colorId),
       lastSeenAt: new Date().toISOString(),
       missingCompleteScans: 0,
     };
@@ -185,4 +195,3 @@ export class DeadlineReconciler {
     return error instanceof Error ? error.message : 'An unknown synchronization error occurred.';
   }
 }
-

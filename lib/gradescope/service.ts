@@ -129,17 +129,26 @@ export class GradescopeSyncService {
 
   async removeManagedEvents(): Promise<number> {
     const state = await this.repository.read();
-    if (!state.settings.calendarId) return 0;
-    const events = await this.calendar.listManagedEvents(state.settings.calendarId);
+    const calendarIds = Array.from(
+      new Set([
+        ...state.settings.managedCalendarIds,
+        ...(state.settings.calendarId ? [state.settings.calendarId] : []),
+      ]),
+    );
     let removed = 0;
-    for (const event of events) {
-      if (!event.id) continue;
-      await this.calendar.deleteEvent(state.settings.calendarId, event.id);
-      removed += 1;
+    for (const calendarId of calendarIds) {
+      const events = await this.calendar.listManagedEvents(calendarId);
+      for (const event of events) {
+        if (!event.id) continue;
+        await this.calendar.deleteEvent(calendarId, event.id);
+        removed += 1;
+      }
     }
     state.managedEvents = {};
+    state.settings.managedCalendarIds = state.settings.calendarId
+      ? [state.settings.calendarId]
+      : [];
     await this.repository.write(state);
     return removed;
   }
 }
-

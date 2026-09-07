@@ -85,6 +85,19 @@ function Options() {
                 <label class="course-card" key={course.id}>
                   <input type="checkbox" checked={course.enabled} onChange={(event) => app.setCourseEnabled(course.id, event.currentTarget.checked)} />
                   <span><strong>{course.shortName}</strong><small>{course.fullName}<br />{course.term}</small></span>
+                  <select
+                    aria-label={`Color for ${course.shortName}`}
+                    value={course.colorId ?? ''}
+                    onChange={(event) => app.setCourseColor(course.id, event.currentTarget.value || undefined)}
+                  >
+                    <option value="">Default color</option>
+                    <option value="1">Lavender</option><option value="2">Sage</option>
+                    <option value="3">Grape</option><option value="4">Flamingo</option>
+                    <option value="5">Banana</option><option value="6">Tangerine</option>
+                    <option value="7">Peacock</option><option value="8">Graphite</option>
+                    <option value="9">Blueberry</option><option value="10">Basil</option>
+                    <option value="11">Tomato</option>
+                  </select>
                 </label>
               ))}
             </div>
@@ -110,4 +123,3 @@ function Options() {
 }
 
 render(<Options />, document.getElementById('app')!);
-

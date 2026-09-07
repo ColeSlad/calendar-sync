@@ -62,6 +62,12 @@ export function useExtensionState() {
     setState(response.state);
   }, []);
 
+  const setCourseColor = useCallback(async (courseId: string, colorId?: string) => {
+    const response = await sendRuntimeMessage({ type: 'SET_COURSE_COLOR', courseId, colorId });
+    if (!response.ok || !('state' in response)) throw new Error('Could not update the course color.');
+    setState(response.state);
+  }, []);
+
   return {
     state,
     calendars,
@@ -76,6 +82,6 @@ export function useExtensionState() {
     connect,
     saveSettings,
     setCourseEnabled,
+    setCourseColor,
   };
 }
-
