@@ -7,6 +7,8 @@
     "postinstall": "wxt prepare",
     "dev": "wxt",
     "build": "wxt build",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "release:check": "npm run check && node scripts/check-release.mjs",
     "zip": "wxt zip",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
