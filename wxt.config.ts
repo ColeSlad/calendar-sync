@@ -17,7 +17,7 @@ export default defineConfig({
       'Privacy-first synchronization from Gradescope to Google Calendar.',
     homepage_url: 'https://github.com/ColeSlad/calendar-sync',
     minimum_chrome_version: '120',
-    permissions: ['alarms', 'identity', 'offscreen', 'storage'],
+    permissions: ['activeTab', 'alarms', 'identity', 'offscreen', 'scripting', 'storage'],
     host_permissions: [
       'https://www.gradescope.com/*',
       'https://www.googleapis.com/*',

@@ -145,6 +145,9 @@ export class GradescopeSyncService {
       }
     }
     state.managedEvents = {};
+    state.scheduleMeetings = {};
+    state.scheduleImports = {};
+    state.lastScheduleSync = undefined;
     state.settings.managedCalendarIds = state.settings.calendarId
       ? [state.settings.calendarId]
       : [];

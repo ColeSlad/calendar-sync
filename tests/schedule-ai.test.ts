@@ -41,6 +41,7 @@ describe('on-device schedule extraction', () => {
       courseCode: 'CMSC131',
       days: ['MO', 'WE', 'FR'],
       startTime: '09:00',
+      confirmed: true,
     }));
     expect(destroy).toHaveBeenCalledOnce();
   });

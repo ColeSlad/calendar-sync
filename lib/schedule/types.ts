@@ -21,6 +21,7 @@ export interface SchedulePageCapture {
 export interface ScheduleMeetingDraft {
   id: string;
   enabled: boolean;
+  confirmed: boolean;
   courseName: string;
   courseCode?: string;
   section?: string;
@@ -53,4 +54,3 @@ export type AiAvailability =
   | 'downloadable'
   | 'downloading'
   | 'unavailable';
-

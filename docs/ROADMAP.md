@@ -18,8 +18,17 @@ deterministic parsing first, and use Chrome's on-device Prompt API with a strict
 JSON Schema for ambiguous layouts. Source text will not be sent to a cloud
 model. Invalid or low-confidence fields will require correction in the preview.
 
-V2 will add `activeTab` and `scripting` permissions only when the feature ships.
-The shared `CalendarItem`, deterministic identity, managed metadata, storage,
-and reconciliation concepts introduced in V1 are intended to support it without
-an architectural rewrite.
+V2 uses `activeTab` and `scripting` only after an explicit import action. The
+shared `CalendarItem`, deterministic identity, managed metadata, storage, and
+reconciliation concepts introduced in V1 support schedule series without an
+architectural rewrite.
 
+Implemented initial scope:
+
+- Rendered English-language HTML schedules, including tables, cards, and lists.
+- Deterministic extraction with schema-constrained on-device AI fallback.
+- Editable term, meeting, timezone, and school-break review.
+- Idempotent recurring Google Calendar events and explicit removals.
+
+Future iterations can add multilingual extraction, PDFs or image-based
+schedules, and verified academic-calendar lookups.

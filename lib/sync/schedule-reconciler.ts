@@ -98,7 +98,12 @@ export class ScheduleReconciler {
       if (managed?.connectorId !== 'schedule-page') continue;
       try {
         const existing = remoteBySource.get(sourceId);
-        if (existing?.id) await this.calendar.deleteEvent(calendarId, existing.id);
+        const eventId = existing?.id ?? managed.eventId;
+        try {
+          await this.calendar.deleteEvent(managed.calendarId, eventId);
+        } catch (error) {
+          if (!(error instanceof CalendarApiError) || error.status !== 404) throw error;
+        }
         delete state.managedEvents[sourceId];
         delete state.scheduleMeetings[sourceId];
         run.counts.unavailable += 1;
@@ -148,4 +153,3 @@ export class ScheduleReconciler {
     return error instanceof Error ? error.message : 'An unknown schedule synchronization error occurred.';
   }
 }
-

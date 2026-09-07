@@ -59,6 +59,9 @@ export async function prepareScheduleItems(
     if (!TIME.test(meeting.startTime) || !TIME.test(meeting.endTime) || meeting.startTime >= meeting.endTime) {
       errors.push(`${meeting.courseName || 'A meeting'} needs a valid start and end time.`);
     }
+    if (!meeting.confirmed) {
+      errors.push(`Confirm the uncertain details for ${meeting.courseCode || meeting.courseName || 'each meeting'}.`);
+    }
   }
   if (errors.length) throw new Error(Array.from(new Set(errors)).join(' '));
 
@@ -103,4 +106,3 @@ export async function prepareScheduleItems(
     };
   }));
 }
-

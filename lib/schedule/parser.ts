@@ -126,6 +126,7 @@ function meetingFromText(
   return {
     id: crypto.randomUUID(),
     enabled: true,
+    confirmed: (values.confidence ?? 0.95) >= 0.8 && (values.warnings?.length ?? 0) === 0,
     courseName,
     courseCode,
     section: values.section,

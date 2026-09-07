@@ -55,8 +55,13 @@ export function captureSchedulePage(): SchedulePageCapture {
         table.querySelector('caption')?.textContent ||
         table.previousElementSibling?.textContent,
     );
-    const serialized = JSON.stringify({ heading, headers, rows });
-    if (!addText(serialized)) break;
+    let serialized = JSON.stringify({ heading, headers, rows });
+    const remaining = MAX_CHARACTERS - characters;
+    while (rows.length > 1 && serialized.length > remaining) {
+      rows.pop();
+      serialized = JSON.stringify({ heading, headers, rows });
+    }
+    if (serialized.length > remaining || !addText(serialized)) break;
     blocks.push({ kind: 'table', heading, headers, rows });
   }
 
@@ -100,4 +105,3 @@ export function captureSchedulePage(): SchedulePageCapture {
     blocks,
   };
 }
-

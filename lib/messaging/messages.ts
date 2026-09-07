@@ -2,6 +2,7 @@ import type {
   AppState,
   Course,
   DeadlineItem,
+  RecurringMeetingItem,
   Settings,
   SyncRun,
   SyncTrigger,
@@ -24,6 +25,11 @@ export type RuntimeRequest =
       result: CourseParseResult;
     }
   | { type: 'START_GRADESCOPE_SYNC'; trigger: SyncTrigger }
+  | {
+      type: 'IMPORT_SCHEDULE_MEETINGS';
+      items: RecurringMeetingItem[];
+      removeSourceIds: string[];
+    }
   | { type: 'REMOVE_MANAGED_EVENTS' }
   | { type: 'PARSE_DASHBOARD_HTML'; target: 'offscreen'; html: string; baseUrl: string }
   | {

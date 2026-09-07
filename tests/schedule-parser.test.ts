@@ -1,8 +1,28 @@
+// @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
+import { captureSchedulePage } from '../lib/schedule/capture';
 import { extractScheduleWithRules, parseDays, parseTimeRange } from '../lib/schedule/parser';
 import type { SchedulePageCapture } from '../lib/schedule/types';
 
 describe('schedule parser', () => {
+  it('captures a schedule rendered into the live DOM', () => {
+    document.title = 'Rendered schedule';
+    document.body.innerHTML = `
+      <table aria-label="Fall schedule">
+        <thead><tr><th>Course</th><th>Days</th><th>Time</th></tr></thead>
+        <tbody><tr><td>CMSC131</td><td>MWF</td><td>10:00 AM - 10:50 AM</td></tr></tbody>
+      </table>`;
+
+    const result = captureSchedulePage();
+
+    expect(result.title).toBe('Rendered schedule');
+    expect(result.blocks[0]).toEqual(expect.objectContaining({
+      kind: 'table',
+      headers: ['Course', 'Days', 'Time'],
+      rows: [['CMSC131', 'MWF', '10:00 AM - 10:50 AM']],
+    }));
+  });
+
   it('normalizes common day formats', () => {
     expect(parseDays('Mon, Wed & Fri')).toEqual(['MO', 'WE', 'FR']);
     expect(parseDays('TuTh')).toEqual(['TU', 'TH']);

@@ -11,6 +11,10 @@ function Options() {
     () => Object.values(app.state?.courses ?? {}),
     [app.state?.courses],
   );
+  const scheduleMeetings = useMemo(
+    () => Object.values(app.state?.scheduleMeetings ?? {}),
+    [app.state?.scheduleMeetings],
+  );
 
   async function removeEvents() {
     if (!confirm('Remove every Google Calendar event managed by Calendar Sync? This cannot be undone.')) return;
@@ -37,9 +41,10 @@ function Options() {
           <a href="#setup">Setup</a>
           <a href="#courses">Courses</a>
           <a href="#preferences">Preferences</a>
+          <a href="#class-schedules">Class schedules</a>
           <a href="#privacy">Privacy & data</a>
         </nav>
-        <small>Version 0.1.0 · Early development</small>
+        <small>Version 0.2.0 · Early development</small>
       </aside>
 
       <div class="content">
@@ -113,8 +118,24 @@ function Options() {
           {app.state.lastSync && <p class="last-sync">Last sync: {relativeTime(app.state.lastSync.finishedAt)} · {app.state.lastSync.successful ? 'Successful' : `${app.state.lastSync.errors.length} issues`}</p>}
         </section>
 
+        <section id="class-schedules">
+          <div class="section-title"><span>04</span><div><h2>Imported class schedules</h2><p>Recurring series created from school portal pages.</p></div></div>
+          {scheduleMeetings.length === 0 ? (
+            <div class="empty">Open a visible school schedule page, then choose Import current page from the extension.</div>
+          ) : (
+            <div class="course-grid">
+              {scheduleMeetings.map((item) => (
+                <article class="schedule-card" key={item.sourceId}>
+                  <div class="service-icon schedule">S</div>
+                  <div><h3>{item.courseCode ?? item.courseName}</h3><p>{item.component ?? 'Class'} · {item.meeting.days.join('/')} · {item.meeting.startTime}–{item.meeting.endTime}<br />{item.termName}{item.meeting.location ? ` · ${item.meeting.location}` : ''}</p></div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section id="privacy">
-          <div class="section-title"><span>04</span><div><h2>Privacy & data</h2><p>Your academic data is stored only inside this browser profile.</p></div></div>
+          <div class="section-title"><span>05</span><div><h2>Privacy & data</h2><p>Your academic data is stored only inside this browser profile.</p></div></div>
           <div class="privacy-box"><p>Calendar Sync uses your existing Gradescope session and talks directly to Google Calendar. There is no Calendar Sync server, analytics pipeline, password collection, or sale of data.</p><button class="danger" disabled={app.busy === 'remove'} onClick={removeEvents}>{app.busy === 'remove' ? 'Removing…' : 'Remove managed calendar events'}</button></div>
         </section>
       </div>

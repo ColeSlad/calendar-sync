@@ -105,6 +105,9 @@ function validatedMeeting(value: unknown): ScheduleMeetingDraft | undefined {
   return {
     id: crypto.randomUUID(),
     enabled: true,
+    confirmed:
+      (typeof raw.confidence === 'number' ? raw.confidence : 0.7) >= 0.8 &&
+      stringArray(raw.warnings).length === 0,
     courseName,
     courseCode,
     section: optionalString(raw.section),
@@ -236,4 +239,3 @@ export async function extractSchedule(
     session?.destroy();
   }
 }
-

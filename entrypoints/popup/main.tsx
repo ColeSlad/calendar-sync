@@ -1,6 +1,8 @@
 import { render } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { sendRuntimeMessage } from '../../lib/messaging/messages';
+import { captureSchedulePage } from '../../lib/schedule/capture';
+import { saveScheduleCapture } from '../../lib/schedule/draft-store';
 import { relativeTime } from '../../lib/ui/format';
 import { useExtensionState } from '../../lib/ui/use-extension-state';
 import './style.css';
@@ -15,6 +17,35 @@ function Popup() {
     (calendar) => calendar.id === app.state?.settings.calendarId,
   );
   const lastRun = app.state?.lastSync;
+
+  async function importSchedule() {
+    app.setBusy('import');
+    app.setMessage(undefined);
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id || !tab.url || !/^https?:/.test(tab.url)) {
+        throw new Error('Open your school schedule in a normal web page first.');
+      }
+      const [injection] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: captureSchedulePage,
+      });
+      const capture = injection?.result;
+      if (!capture || capture.blocks.length === 0) {
+        throw new Error('No visible schedule content was found on this page.');
+      }
+      await saveScheduleCapture(capture);
+      await chrome.tabs.create({ url: chrome.runtime.getURL('schedule-import.html') });
+      window.close();
+    } catch (error) {
+      app.setMessage({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not read this page.',
+      });
+    } finally {
+      app.setBusy(undefined);
+    }
+  }
 
   async function syncNow() {
     app.setBusy('sync');
@@ -138,6 +169,16 @@ function Popup() {
       >
         {app.busy === 'sync' ? 'Syncing safely…' : 'Sync now'}
       </button>
+      <section class="schedule-import-card">
+        <div>
+          <p class="label">CLASS SCHEDULE</p>
+          <strong>Import the page you are viewing</strong>
+          <small>Works with rendered school schedule tables, cards, and lists.</small>
+        </div>
+        <button class="secondary" disabled={!!app.busy} onClick={importSchedule}>
+          {app.busy === 'import' ? 'Reading…' : 'Import current page'}
+        </button>
+      </section>
       <footer>
         <span>Automatic · every 2 hours</span>
         <button onClick={() => chrome.runtime.openOptionsPage()}>Settings</button>

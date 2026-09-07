@@ -4,6 +4,7 @@ import { GradescopeSyncService } from '../lib/gradescope/service';
 import type { RuntimeRequest, RuntimeResponse } from '../lib/messaging/messages';
 import { StateRepository } from '../lib/storage/repository';
 import { DeadlineReconciler } from '../lib/sync/reconciler';
+import { ScheduleReconciler } from '../lib/sync/schedule-reconciler';
 
 const ALARM_NAME = 'calendar-sync-gradescope';
 
@@ -11,6 +12,7 @@ export default defineBackground(() => {
   const repository = new StateRepository();
   const calendar = new GoogleCalendarClient();
   const reconciler = new DeadlineReconciler(calendar, repository);
+  const scheduleReconciler = new ScheduleReconciler(calendar, repository);
   const gradescope = new GradescopeSyncService(repository, reconciler, calendar);
 
   async function configureAlarm(): Promise<void> {
@@ -93,6 +95,14 @@ export default defineBackground(() => {
           }
           case 'START_GRADESCOPE_SYNC':
             return { ok: true, run: await gradescope.run(request.trigger) };
+          case 'IMPORT_SCHEDULE_MEETINGS':
+            return {
+              ok: true,
+              run: await scheduleReconciler.reconcile({
+                items: request.items,
+                removeSourceIds: request.removeSourceIds,
+              }),
+            };
           case 'REMOVE_MANAGED_EVENTS':
             return { ok: true, removed: await gradescope.removeManagedEvents() };
           default:
