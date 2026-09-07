@@ -51,6 +51,8 @@ export default defineBackground(() => {
             return { ok: true, state: await repository.read() };
           case 'CONNECT_GOOGLE':
             return { ok: true, calendars: await calendar.listOwnedCalendars(true) };
+          case 'LIST_CALENDARS':
+            return { ok: true, calendars: await calendar.listOwnedCalendars(false) };
           case 'DISCONNECT_GOOGLE':
             await disconnectGoogle();
             return { ok: true, state: await repository.updateSettings({ calendarId: undefined }) };

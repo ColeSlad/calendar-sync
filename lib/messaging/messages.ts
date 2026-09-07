@@ -12,6 +12,7 @@ import type { GoogleCalendar } from '../calendar/types';
 export type RuntimeRequest =
   | { type: 'GET_STATE' }
   | { type: 'CONNECT_GOOGLE' }
+  | { type: 'LIST_CALENDARS' }
   | { type: 'DISCONNECT_GOOGLE' }
   | { type: 'SAVE_SETTINGS'; patch: Partial<Settings> }
   | { type: 'SET_COURSE_ENABLED'; courseId: string; enabled: boolean }
@@ -50,4 +51,3 @@ export interface PageScanPayload {
 export function sendRuntimeMessage(request: RuntimeRequest): Promise<RuntimeResponse> {
   return chrome.runtime.sendMessage(request) as Promise<RuntimeResponse>;
 }
-
