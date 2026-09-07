@@ -92,7 +92,7 @@ function dateFromCell(
 
 function statusFromRow(row: Element): DeadlineItem['status'] {
   const rowText = text(row);
-  if (/graded|score\s*:/i.test(rowText)) return 'graded';
+  if (/graded|score\s*:|\b\d+(?:\.\d+)?\s*\/\s*\d/i.test(rowText)) return 'graded';
   if (/submitted|submission received/i.test(rowText)) return 'submitted';
   return 'pending';
 }

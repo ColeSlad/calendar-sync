@@ -74,6 +74,10 @@ export class DeadlineReconciler {
     for (const deadline of input.deadlines) {
       const existing = remoteBySource.get(deadline.sourceId);
       const managed = state.managedEvents[deadline.sourceId];
+      if (!existing && !managed && new Date(deadline.dueAt).getTime() < Date.now()) {
+        state.deadlines[deadline.sourceId] = deadline;
+        continue;
+      }
       try {
         const eventId =
           existing?.id ?? managed?.eventId ??
@@ -145,6 +149,7 @@ export class DeadlineReconciler {
       if (managed.connectorId !== 'gradescope' || observed.has(id)) continue;
       const deadline = state.deadlines[id];
       if (!deadline || !input.completeCourseIds.has(deadline.courseId)) continue;
+      if (new Date(deadline.dueAt).getTime() < Date.now()) continue;
       managed.missingCompleteScans += 1;
       if (managed.missingCompleteScans !== 2) continue;
 
@@ -156,6 +161,7 @@ export class DeadlineReconciler {
           existing.id,
           patchUnavailableEvent(deadline, existing),
         );
+        managed.sourceHash = `${managed.sourceHash}:unavailable`;
         run.counts.unavailable += 1;
       } catch (error) {
         run.successful = false;

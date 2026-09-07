@@ -44,12 +44,16 @@ describe('deadline event mapping', () => {
   it('marks submitted work without replacing location or reminders', () => {
     const patch = patchDeadlineEvent(
       { ...deadline, status: 'submitted', sourceHash: 'hash-two' },
-      { description: 'My note', location: 'Library' },
+      {
+        description: 'My note',
+        location: 'Library',
+        extendedProperties: { private: { anotherApp: 'keep-me' } },
+      },
     );
     expect(patch.summary).toBe('✓ [CS 101] Problem Set 1');
     expect(patch.description).toContain('My note');
     expect(patch).not.toHaveProperty('location');
     expect(patch).not.toHaveProperty('reminders');
+    expect(patch.extendedProperties?.private?.anotherApp).toBe('keep-me');
   });
 });
-

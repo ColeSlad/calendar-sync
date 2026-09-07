@@ -79,7 +79,12 @@ export function patchDeadlineEvent(
     transparency: deadline.status === 'pending' ? 'opaque' : 'transparent',
     start: { dateTime: deadline.dueAt },
     end: { dateTime: end },
-    extendedProperties: { private: managedProperties(deadline) },
+    extendedProperties: {
+      private: {
+        ...existing.extendedProperties?.private,
+        ...managedProperties(deadline),
+      },
+    },
   };
 }
 
@@ -100,4 +105,3 @@ export function patchUnavailableEvent(
     transparency: 'transparent',
   };
 }
-

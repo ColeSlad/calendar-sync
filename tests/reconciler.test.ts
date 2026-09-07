@@ -48,7 +48,7 @@ function item(sourceHash = 'hash'): DeadlineItem {
     courseId: '123',
     courseName: 'CS 101',
     title: 'Problem Set 1',
-    dueAt: '2026-09-13T03:59:00.000Z',
+    dueAt: '2126-09-13T03:59:00.000Z',
     status: 'pending',
     url: 'https://www.gradescope.com/courses/123/assignments/456',
     observedAt: '2026-09-06T12:00:00.000Z',
@@ -124,5 +124,25 @@ describe('DeadlineReconciler', () => {
     });
     expect(calendar.patches).toHaveLength(0);
   });
-});
 
+  it('does not create historical events during first sync', async () => {
+    const { reconciler, calendar } = await setup();
+    const run = await reconciler.reconcile({
+      deadlines: [{ ...item(), dueAt: '2020-01-01T12:00:00.000Z' }],
+      completeCourseIds: new Set(['123']),
+      trigger: 'onboarding',
+    });
+    expect(run.counts.created).toBe(0);
+    expect(calendar.events).toHaveLength(0);
+  });
+
+  it('restores a reappearing assignment after an unavailable marker', async () => {
+    const { reconciler, calendar } = await setup();
+    await reconciler.reconcile({ deadlines: [item()], completeCourseIds: new Set(['123']), trigger: 'manual' });
+    await reconciler.reconcile({ deadlines: [], completeCourseIds: new Set(['123']), trigger: 'manual' });
+    await reconciler.reconcile({ deadlines: [], completeCourseIds: new Set(['123']), trigger: 'manual' });
+    const result = await reconciler.reconcile({ deadlines: [item()], completeCourseIds: new Set(['123']), trigger: 'manual' });
+    expect(result.counts.updated).toBe(1);
+    expect(calendar.events[0]?.summary).not.toMatch(/^⚠ /);
+  });
+});
