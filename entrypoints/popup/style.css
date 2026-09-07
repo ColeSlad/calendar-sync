@@ -36,7 +36,7 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .compact { padding: 9px 13px; font-size: 12px; }
 .text-button, footer button { padding: 0; background: transparent; color: #23644b; font-size: 11px; font-weight: 700; }
 
-.course-list { overflow: hidden; border: 1px solid #dde1dc; border-radius: 12px; background: rgba(255,255,255,.55); }
+.course-list { max-height: 228px; overflow-y: auto; border: 1px solid #dde1dc; border-radius: 12px; background: rgba(255,255,255,.55); scrollbar-width: thin; }
 .course-row { display: grid; grid-template-columns: 8px 1fr auto; gap: 11px; align-items: center; padding: 11px 13px; border-bottom: 1px solid #e5e7e3; cursor: pointer; }
 .course-row:last-child { border-bottom: 0; }
 .course-color { width: 8px; height: 26px; border-radius: 8px; background: #cf8a51; }
@@ -59,4 +59,3 @@ footer { display: flex; justify-content: space-between; margin-top: 13px; color:
   .hero-card p:last-child, .course-row small, .metrics, footer, .eyebrow, .label { color: #9caf9f; }
   .metrics b { color: #ecf2ed; }
 }
-

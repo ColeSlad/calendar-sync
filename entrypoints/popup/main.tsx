@@ -89,7 +89,7 @@ function Popup() {
         </div>
         {courses.length > 0 && (
           <div class="course-list">
-            {courses.slice(0, 4).map((course) => (
+            {courses.map((course) => (
               <label class="course-row" key={course.id}>
                 <span class="course-color" />
                 <span>
@@ -139,4 +139,3 @@ function Popup() {
 }
 
 render(<Popup />, document.getElementById('app')!);
-
