@@ -4,6 +4,12 @@ const CALENDAR_SCOPES = [
 ];
 
 export async function getGoogleToken(interactive: boolean): Promise<string> {
+  const clientId = chrome.runtime.getManifest().oauth2?.client_id;
+  if (!clientId || clientId.startsWith('replace-me')) {
+    throw new Error(
+      'Google OAuth is not configured. Add WXT_GOOGLE_OAUTH_CLIENT_ID to .env, rebuild, and reload the extension.',
+    );
+  }
   const result = await chrome.identity.getAuthToken({
     interactive,
     scopes: CALENDAR_SCOPES,
@@ -19,4 +25,3 @@ export async function invalidateGoogleToken(token: string): Promise<void> {
 export async function disconnectGoogle(): Promise<void> {
   await chrome.identity.clearAllCachedAuthTokens();
 }
-
