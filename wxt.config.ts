@@ -12,7 +12,7 @@ export default defineConfig({
     description:
       'Privacy-first synchronization from Gradescope and school schedules to Google Calendar.',
     minimum_chrome_version: '120',
-    permissions: ['alarms', 'identity', 'storage'],
+    permissions: ['alarms', 'identity', 'offscreen', 'storage'],
     optional_permissions: ['notifications'],
     host_permissions: [
       'https://www.gradescope.com/*',
@@ -30,4 +30,3 @@ export default defineConfig({
     },
   },
 });
-
