@@ -105,8 +105,16 @@ export async function parseCoursePage(
   const warnings: string[] = [];
   const deadlines: DeadlineItem[] = [];
   const tables = Array.from(document.querySelectorAll('table')).filter((table) => {
-    const headingText = text(table.querySelector('thead'));
-    return /assignment/i.test(headingText) && /due/i.test(headingText);
+    const headers = Array.from(table.querySelectorAll('thead th')).map((cell) =>
+      text(cell).toLowerCase(),
+    );
+    const hasTitleColumn = headerIndex(headers, /assignment|name/) >= 0;
+    const hasDueColumn = headerIndex(headers, /due/, /late/) >= 0;
+    const hasAssignmentLinks = Boolean(
+      table.querySelector('tbody a[href*="/assignments/"]'),
+    );
+
+    return hasDueColumn && (hasTitleColumn || hasAssignmentLinks);
   });
 
   if (tables.length === 0) {

@@ -27,10 +27,18 @@ function Popup() {
       if (!response.ok) throw new Error(response.error);
       if (!('run' in response)) throw new Error('The sync returned no result.');
       await app.refresh();
-      const { counts } = response.run;
+      const { counts, errors } = response.run;
+      const processed =
+        counts.created + counts.updated + counts.completed + counts.unchanged;
+      const firstIssue = errors[0]?.message;
+      const text = firstIssue
+        ? `Sync issue: ${firstIssue}`
+        : processed === 0
+          ? 'No upcoming deadlines were found. Past deadlines are skipped.'
+          : `${counts.created} created, ${counts.updated + counts.completed} updated, ${counts.unchanged} already synced, ${counts.failed} failed.`;
       app.setMessage({
-        tone: response.run.successful ? 'success' : 'error',
-        text: `${counts.created} created, ${counts.updated + counts.completed} updated, ${counts.failed} failed.`,
+        tone: errors.length === 0 && response.run.successful ? 'success' : 'error',
+        text,
       });
     } catch (error) {
       app.setMessage({

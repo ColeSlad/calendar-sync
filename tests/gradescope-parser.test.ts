@@ -62,6 +62,41 @@ describe('Gradescope parser', () => {
     ]);
   });
 
+  it('recognizes the Gradescope table when its assignment column is named Name', async () => {
+    document.body.innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Released</th><th>Due</th><th>Submission Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <th><a href="/courses/123/assignments/654">Homework 2</a></th>
+            <td><time datetime="2026-09-01T09:00:00-04:00">Sep 1 at 9:00 AM</time></td>
+            <td><time datetime="2026-09-20T23:59:00-04:00">Sep 20 at 11:59 PM</time></td>
+            <td>No Submission</td>
+          </tr>
+        </tbody>
+      </table>`;
+    const course: Course = {
+      id: '123',
+      shortName: 'CS 101',
+      fullName: 'Introduction to Computing',
+      term: 'Fall 2026',
+      url: 'https://www.gradescope.com/courses/123',
+      enabled: true,
+    };
+
+    const result = await parseCoursePage(document, course);
+
+    expect(result.complete).toBe(true);
+    expect(result.deadlines).toEqual([
+      expect.objectContaining({
+        sourceId: '123:654',
+        title: 'Homework 2',
+        dueAt: '2026-09-21T03:59:00.000Z',
+        status: 'pending',
+      }),
+    ]);
+  });
+
   it('selects the main deadline when release and late dates share a cell', async () => {
     document.body.innerHTML = `
       <table>
