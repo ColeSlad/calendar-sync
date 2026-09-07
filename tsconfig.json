@@ -5,6 +5,7 @@
     "jsxImportSource": "preact",
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "types": ["chrome", "node", "vite/client"]
   }
 }
