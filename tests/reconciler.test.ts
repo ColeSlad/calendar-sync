@@ -63,6 +63,8 @@ async function setup() {
     settings: { ...DEFAULT_SETTINGS, calendarId: 'primary' },
     courses: {},
     deadlines: {},
+    scheduleMeetings: {},
+    scheduleImports: {},
     managedEvents: {},
   };
   await repository.write(initial);

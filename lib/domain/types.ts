@@ -27,11 +27,18 @@ export interface DeadlineItem {
   sourceHash: string;
 }
 
+export type Weekday = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
+
 export interface MeetingPattern {
-  days: Array<'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU'>;
+  days: Weekday[];
   startTime: string;
   endTime: string;
   location?: string;
+}
+
+export interface DateRange {
+  start: string;
+  end: string;
 }
 
 export interface RecurringMeetingItem {
@@ -41,11 +48,16 @@ export interface RecurringMeetingItem {
   courseName: string;
   courseCode?: string;
   section?: string;
+  component?: string;
+  instructor?: string;
   termName: string;
   termStart: string;
   termEnd: string;
   timezone: string;
   meeting: MeetingPattern;
+  exclusions: DateRange[];
+  confidence: number;
+  warnings: string[];
   sourceUrl: string;
   sourceHash: string;
 }
@@ -62,7 +74,21 @@ export interface ManagedEvent {
   missingCompleteScans: number;
 }
 
-export type SyncTrigger = 'manual' | 'page-visit' | 'alarm' | 'onboarding';
+export interface ScheduleImportRecord {
+  id: string;
+  sourceUrl: string;
+  sourceOrigin: string;
+  termName: string;
+  importedAt: string;
+  sourceIds: string[];
+}
+
+export type SyncTrigger =
+  | 'manual'
+  | 'page-visit'
+  | 'alarm'
+  | 'onboarding'
+  | 'schedule-import';
 
 export interface SyncCounts {
   created: number;
@@ -96,8 +122,11 @@ export interface AppState {
   settings: Settings;
   courses: Record<string, Course>;
   deadlines: Record<string, DeadlineItem>;
+  scheduleMeetings: Record<string, RecurringMeetingItem>;
+  scheduleImports: Record<string, ScheduleImportRecord>;
   managedEvents: Record<string, ManagedEvent>;
   lastSync?: SyncRun;
+  lastScheduleSync?: SyncRun;
 }
 
 export const DEFAULT_SETTINGS: Settings = {

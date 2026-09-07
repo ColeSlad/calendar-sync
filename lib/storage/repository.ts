@@ -26,6 +26,8 @@ function emptyState(): AppState {
     settings: { ...DEFAULT_SETTINGS },
     courses: {},
     deadlines: {},
+    scheduleMeetings: {},
+    scheduleImports: {},
     managedEvents: {},
   };
 }
@@ -48,8 +50,11 @@ export class StateRepository {
       settings: { ...DEFAULT_SETTINGS, ...value.settings },
       courses: value.courses ?? {},
       deadlines: value.deadlines ?? {},
+      scheduleMeetings: value.scheduleMeetings ?? {},
+      scheduleImports: value.scheduleImports ?? {},
       managedEvents: value.managedEvents ?? {},
       lastSync: value.lastSync,
+      lastScheduleSync: value.lastScheduleSync,
     };
   }
 
