@@ -1,13 +1,17 @@
 import preact from '@preact/preset-vite';
+import { loadEnv } from 'vite';
 import { defineConfig } from 'wxt';
-
-const googleClientId =
-  process.env.WXT_GOOGLE_OAUTH_CLIENT_ID ??
-  'replace-me.apps.googleusercontent.com';
 
 export default defineConfig({
   vite: () => ({ plugins: [preact()] }),
-  manifest: {
+  manifest: ({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), 'WXT_');
+    const googleClientId =
+      env.WXT_GOOGLE_OAUTH_CLIENT_ID ??
+      process.env.WXT_GOOGLE_OAUTH_CLIENT_ID ??
+      'replace-me.apps.googleusercontent.com';
+
+    return {
     name: 'Calendar Sync',
     description:
       'Privacy-first synchronization from Gradescope to Google Calendar.',
@@ -42,5 +46,6 @@ export default defineConfig({
       48: 'icons/icon-48.png',
       128: 'icons/icon-128.png',
     },
+    };
   },
 });
