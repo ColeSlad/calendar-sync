@@ -103,6 +103,14 @@ export default defineBackground(() => {
                 removeSourceIds: request.removeSourceIds,
               }),
             };
+          case 'REMOVE_SCHEDULE_MEETINGS':
+            return {
+              ok: true,
+              run: await scheduleReconciler.reconcile({
+                items: [],
+                removeSourceIds: request.sourceIds,
+              }),
+            };
           case 'REMOVE_MANAGED_EVENTS':
             return { ok: true, removed: await gradescope.removeManagedEvents() };
           default:

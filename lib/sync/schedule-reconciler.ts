@@ -114,6 +114,13 @@ export class ScheduleReconciler {
       }
     }
 
+    for (const [recordId, record] of Object.entries(state.scheduleImports)) {
+      record.sourceIds = record.sourceIds.filter((sourceId) =>
+        Boolean(state.scheduleMeetings[sourceId]),
+      );
+      if (record.sourceIds.length === 0) delete state.scheduleImports[recordId];
+    }
+
     const first = input.items[0];
     if (first) {
       const record = {

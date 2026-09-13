@@ -29,6 +29,33 @@ function Options() {
     app.setBusy(undefined);
   }
 
+  async function removeScheduleMeetings(sourceIds: string[], label: string) {
+    if (sourceIds.length === 0) return;
+    if (!confirm(`Remove ${label} from Google Calendar? This removes only class schedule events managed by Calendar Sync.`)) return;
+    app.setBusy('remove-schedule');
+    app.setMessage(undefined);
+    try {
+      const response = await sendRuntimeMessage({ type: 'REMOVE_SCHEDULE_MEETINGS', sourceIds });
+      if (!response.ok) throw new Error(response.error);
+      if (!('run' in response)) throw new Error('The schedule cleanup returned no result.');
+      if (response.run.errors.length) {
+        throw new Error(response.run.errors.map((error) => error.message).join(' '));
+      }
+      app.setMessage({
+        tone: 'success',
+        text: `Removed ${response.run.counts.unavailable} class schedule event${response.run.counts.unavailable === 1 ? '' : 's'}.`,
+      });
+      await app.refresh();
+    } catch (error) {
+      app.setMessage({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not remove the class schedule events.',
+      });
+    } finally {
+      app.setBusy(undefined);
+    }
+  }
+
   if (app.loading || !app.state) return <main><p>Loading setup…</p></main>;
   const settings = app.state.settings;
 
@@ -119,7 +146,7 @@ function Options() {
         </section>
 
         <section id="class-schedules">
-          <div class="section-title"><span>04</span><div><h2>Imported class schedules</h2><p>Recurring series created from school portal pages.</p></div></div>
+          <div class="section-title schedule-title"><span>04</span><div><h2>Imported class schedules</h2><p>Recurring series tagged and managed by Calendar Sync.</p></div>{scheduleMeetings.length > 0 && <button class="danger remove-all-schedules" disabled={app.busy === 'remove-schedule'} onClick={() => removeScheduleMeetings(scheduleMeetings.map((item) => item.sourceId), 'all imported classes')}>Remove all classes</button>}</div>
           {scheduleMeetings.length === 0 ? (
             <div class="empty">Open a visible school schedule page, then choose Import current page from the extension.</div>
           ) : (
@@ -127,7 +154,8 @@ function Options() {
               {scheduleMeetings.map((item) => (
                 <article class="schedule-card" key={item.sourceId}>
                   <div class="service-icon schedule">S</div>
-                  <div><h3>{item.courseCode ?? item.courseName}</h3><p>{item.component ?? 'Class'} · {item.meeting.days.join('/')} · {item.meeting.startTime}–{item.meeting.endTime}<br />{item.termName}{item.meeting.location ? ` · ${item.meeting.location}` : ''}</p></div>
+                  <div><h3>{item.courseCode ?? item.courseName}</h3><p>{item.component ?? 'Class'} · {item.meeting.days.join('/')} · {item.meeting.startTime}–{item.meeting.endTime}<br />{item.termName}{item.meeting.location ? ` · ${item.meeting.location}` : ''}</p><small class="managed-tag">Calendar Sync managed</small></div>
+                  <button class="remove-series" disabled={app.busy === 'remove-schedule'} onClick={() => removeScheduleMeetings([item.sourceId], `${item.courseCode ?? item.courseName} ${item.component ?? 'class'}`)}>Remove</button>
                 </article>
               ))}
             </div>

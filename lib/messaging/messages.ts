@@ -30,6 +30,7 @@ export type RuntimeRequest =
       items: RecurringMeetingItem[];
       removeSourceIds: string[];
     }
+  | { type: 'REMOVE_SCHEDULE_MEETINGS'; sourceIds: string[] }
   | { type: 'REMOVE_MANAGED_EVENTS' }
   | { type: 'PARSE_DASHBOARD_HTML'; target: 'offscreen'; html: string; baseUrl: string }
   | {

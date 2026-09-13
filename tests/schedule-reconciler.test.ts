@@ -73,6 +73,7 @@ describe('ScheduleReconciler', () => {
   it('only removes a series when explicitly requested', async () => {
     const { reconciler, calendar, repository } = await setup();
     await reconciler.reconcile({ items: [meeting()] });
+    expect(Object.keys((await repository.read()).scheduleImports)).toHaveLength(1);
     const untouched = await reconciler.reconcile({ items: [] });
     expect(untouched.counts.unavailable).toBe(0);
     expect(calendar.events).toHaveLength(1);
@@ -80,5 +81,6 @@ describe('ScheduleReconciler', () => {
     expect(removed.counts.unavailable).toBe(1);
     expect(calendar.events).toHaveLength(0);
     expect((await repository.read()).scheduleMeetings).toEqual({});
+    expect((await repository.read()).scheduleImports).toEqual({});
   });
 });
