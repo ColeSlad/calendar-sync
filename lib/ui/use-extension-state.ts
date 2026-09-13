@@ -50,6 +50,36 @@ export function useExtensionState() {
     }
   }, []);
 
+  const createDedicatedCalendar = useCallback(async () => {
+    setBusy('create-calendar');
+    setMessage(undefined);
+    try {
+      const response = await sendRuntimeMessage({
+        type: 'CREATE_DEDICATED_CALENDAR',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+      if (!response.ok) throw new Error(response.error);
+      if (!('state' in response) || !('calendars' in response) || !('created' in response)) {
+        throw new Error('Google Calendar returned an unexpected response.');
+      }
+      setState(response.state);
+      setCalendars(response.calendars);
+      setMessage({
+        tone: 'success',
+        text: response.created
+          ? 'Created and selected the Class Schedule calendar.'
+          : 'Selected your existing Class Schedule calendar.',
+      });
+    } catch (error) {
+      setMessage({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not create the calendar.',
+      });
+    } finally {
+      setBusy(undefined);
+    }
+  }, []);
+
   const saveSettings = useCallback(async (patch: Partial<AppState['settings']>) => {
     const response = await sendRuntimeMessage({ type: 'SAVE_SETTINGS', patch });
     if (!response.ok || !('state' in response)) throw new Error('Could not save settings.');
@@ -80,6 +110,7 @@ export function useExtensionState() {
     setState,
     refresh,
     connect,
+    createDedicatedCalendar,
     saveSettings,
     setCourseEnabled,
     setCourseColor,

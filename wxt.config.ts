@@ -27,6 +27,7 @@ export default defineConfig({
       scopes: [
         'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
         'https://www.googleapis.com/auth/calendar.events.owned',
+        'https://www.googleapis.com/auth/calendar.app.created',
       ],
     },
     action: {

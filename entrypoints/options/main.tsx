@@ -58,6 +58,11 @@ function Options() {
 
   if (app.loading || !app.state) return <main><p>Loading setup…</p></main>;
   const settings = app.state.settings;
+  const dedicatedCalendarExists = app.calendars.some(
+    (calendar) => calendar.id === settings.dedicatedCalendarId,
+  );
+  const dedicatedCalendarSelected = dedicatedCalendarExists &&
+    settings.calendarId === settings.dedicatedCalendarId;
 
   return (
     <main>
@@ -71,7 +76,7 @@ function Options() {
           <a href="#class-schedules">Class schedules</a>
           <a href="#privacy">Privacy & data</a>
         </nav>
-        <small>Version 0.2.2 · Early development</small>
+        <small>Version 0.3.0 · Early development</small>
       </aside>
 
       <div class="content">
@@ -98,12 +103,36 @@ function Options() {
             </article>
           </div>
           {app.calendars.length > 0 && (
-            <label class="field">
-              <span>Destination calendar</span>
-              <select value={settings.calendarId} onChange={(event) => app.saveSettings({ calendarId: event.currentTarget.value })}>
-                {app.calendars.map((calendar) => <option value={calendar.id}>{calendar.summary}{calendar.primary ? ' (primary)' : ''}</option>)}
-              </select>
-            </label>
+            <div class="calendar-setup">
+              <label class="field">
+                <span>Destination calendar</span>
+                <select value={settings.calendarId} onChange={(event) => app.saveSettings({ calendarId: event.currentTarget.value })}>
+                  {app.calendars.map((calendar) => <option value={calendar.id}>{calendar.summary}{calendar.primary ? ' (primary)' : ''}</option>)}
+                </select>
+              </label>
+              <div class="dedicated-calendar">
+                <div>
+                  <strong>Keep school events separate</strong>
+                  <p>Create a dedicated Class Schedule calendar and use it for future Calendar Sync events. You can hide, share, recolor, or delete it as one calendar in Google Calendar.</p>
+                </div>
+                <button
+                  class={dedicatedCalendarSelected ? 'selected' : undefined}
+                  onClick={app.createDedicatedCalendar}
+                  disabled={
+                    app.busy === 'create-calendar' ||
+                    dedicatedCalendarSelected
+                  }
+                >
+                  {app.busy === 'create-calendar'
+                    ? 'Creating…'
+                    : dedicatedCalendarSelected
+                      ? 'Selected'
+                      : dedicatedCalendarExists
+                        ? 'Use Class Schedule'
+                        : 'Create calendar'}
+                </button>
+              </div>
+            </div>
           )}
         </section>
 

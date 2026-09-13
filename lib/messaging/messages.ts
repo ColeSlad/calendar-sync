@@ -14,6 +14,7 @@ export type RuntimeRequest =
   | { type: 'GET_STATE' }
   | { type: 'CONNECT_GOOGLE' }
   | { type: 'LIST_CALENDARS' }
+  | { type: 'CREATE_DEDICATED_CALENDAR'; timeZone: string }
   | { type: 'DISCONNECT_GOOGLE' }
   | { type: 'SAVE_SETTINGS'; patch: Partial<Settings> }
   | { type: 'SET_COURSE_ENABLED'; courseId: string; enabled: boolean }
@@ -44,6 +45,12 @@ export type RuntimeRequest =
 export type RuntimeResponse =
   | { ok: true; state: AppState }
   | { ok: true; calendars: GoogleCalendar[] }
+  | {
+      ok: true;
+      state: AppState;
+      calendars: GoogleCalendar[];
+      created: boolean;
+    }
   | { ok: true; run: SyncRun }
   | { ok: true; removed: number }
   | { ok: true; courses: Course[] }

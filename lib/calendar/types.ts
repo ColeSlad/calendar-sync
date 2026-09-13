@@ -1,9 +1,24 @@
 export interface GoogleCalendar {
   id: string;
   summary: string;
+  description?: string;
+  timeZone?: string;
   primary?: boolean;
   accessRole: 'none' | 'freeBusyReader' | 'reader' | 'writer' | 'owner';
   backgroundColor?: string;
+}
+
+export interface GoogleCalendarInput {
+  summary: string;
+  description?: string;
+  timeZone?: string;
+}
+
+export interface GoogleCalendarResource {
+  id: string;
+  summary: string;
+  description?: string;
+  timeZone?: string;
 }
 
 export interface GoogleEventDateTime {

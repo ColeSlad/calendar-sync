@@ -1,5 +1,6 @@
 import { disconnectGoogle } from '../lib/calendar/auth';
 import { GoogleCalendarClient } from '../lib/calendar/client';
+import { DedicatedCalendarService } from '../lib/calendar/dedicated-calendar';
 import { GradescopeSyncService } from '../lib/gradescope/service';
 import type { RuntimeRequest, RuntimeResponse } from '../lib/messaging/messages';
 import { StateRepository } from '../lib/storage/repository';
@@ -11,6 +12,7 @@ const ALARM_NAME = 'calendar-sync-gradescope';
 export default defineBackground(() => {
   const repository = new StateRepository();
   const calendar = new GoogleCalendarClient();
+  const dedicatedCalendar = new DedicatedCalendarService(calendar, repository);
   const reconciler = new DeadlineReconciler(calendar, repository);
   const scheduleReconciler = new ScheduleReconciler(calendar, repository);
   const gradescope = new GradescopeSyncService(repository, reconciler, calendar);
@@ -55,6 +57,10 @@ export default defineBackground(() => {
             return { ok: true, calendars: await calendar.listOwnedCalendars(true) };
           case 'LIST_CALENDARS':
             return { ok: true, calendars: await calendar.listOwnedCalendars(false) };
+          case 'CREATE_DEDICATED_CALENDAR': {
+            const result = await dedicatedCalendar.createOrSelect(request.timeZone);
+            return { ok: true, ...result };
+          }
           case 'DISCONNECT_GOOGLE':
             await disconnectGoogle();
             return { ok: true, state: await repository.updateSettings({ calendarId: undefined }) };

@@ -112,6 +112,7 @@ export interface SyncRun {
 
 export interface Settings {
   calendarId?: string;
+  dedicatedCalendarId?: string;
   managedCalendarIds: string[];
   autoSyncEnabled: boolean;
   syncIntervalMinutes: number;

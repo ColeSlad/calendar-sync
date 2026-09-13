@@ -7,6 +7,7 @@ Calendar Sync needs a Google Cloud project controlled by the publisher.
 3. Add these scopes:
    - `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
    - `https://www.googleapis.com/auth/calendar.events.owned`
+   - `https://www.googleapis.com/auth/calendar.app.created`
 4. Build the extension once and load it unpacked in Chrome.
 5. Copy its stable extension ID from `chrome://extensions`.
 6. Create an OAuth client with application type **Chrome Extension**, using that
@@ -20,3 +21,9 @@ Calendar Sync needs a Google Cloud project controlled by the publisher.
 The extension must never contain an OAuth client secret. Run
 `npm run release:check` before packaging; it rejects placeholder client IDs.
 
+The `calendar.app.created` scope is requested interactively only when the user
+chooses **Create calendar**. It lets Calendar Sync create its secondary **Class
+Schedule** calendar without granting access to create or edit unrelated
+calendars. If this scope is added after initial setup, add it to the OAuth
+consent screen, rebuild and reload the extension, then approve the additional
+permission when prompted.

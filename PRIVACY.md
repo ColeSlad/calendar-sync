@@ -1,6 +1,6 @@
 # Calendar Sync Privacy Policy
 
-Last updated: September 7, 2026
+Last updated: September 12, 2026
 
 Calendar Sync synchronizes academic calendar information between websites you
 use and a Google Calendar you select. The extension is designed to perform this
@@ -10,7 +10,8 @@ work locally in your browser.
 
 - Course names, assignment names, deadlines, submission status, and Gradescope
   links visible to your signed-in Gradescope account.
-- The names and identifiers of Google Calendars you own.
+- The names, identifiers, and basic properties of Google Calendars you own.
+- A secondary **Class Schedule** calendar created only when you request it.
 - Events created or managed by Calendar Sync in your selected calendar.
 - Local preferences and synchronization diagnostics.
 - Visible course schedule text from the active school-portal tab when the user
@@ -52,9 +53,11 @@ Calendar Sync communicates with Gradescope and Google only over HTTPS. Google
 authorization tokens are obtained and cached by Chrome's Identity API. The
 extension requests access to Gradescope pages, owned-calendar metadata, and
 events on calendars you own because those permissions are required for its core
-synchronization feature. The `activeTab` permission grants temporary access only
-to the page where the user invokes schedule import; `scripting` is used to read
-that page's visible, rendered schedule content.
+synchronization feature. When you explicitly create a dedicated calendar, it
+also requests permission to create and manage secondary calendars made by the
+extension. The `activeTab` permission grants temporary access only to the page
+where the user invokes schedule import; `scripting` is used to read that page's
+visible, rendered schedule content.
 
 ## Your controls
 

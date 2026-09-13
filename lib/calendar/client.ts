@@ -1,7 +1,9 @@
-import { getGoogleToken, invalidateGoogleToken } from './auth';
+import { CALENDAR_CREATE_SCOPES, getGoogleToken, invalidateGoogleToken } from './auth';
 import type {
   GoogleCalendar,
+  GoogleCalendarInput,
   GoogleCalendarList,
+  GoogleCalendarResource,
   GoogleEvent,
   GoogleEventList,
 } from './types';
@@ -46,8 +48,9 @@ export class GoogleCalendarClient implements CalendarGateway {
     init: RequestInit = {},
     interactive = false,
     authRetry = true,
+    scopes?: string[],
   ): Promise<T> {
-    const token = await getGoogleToken(interactive);
+    const token = await getGoogleToken(interactive, scopes);
     let response: Response | undefined;
 
     for (let attempt = 0; attempt < 4; attempt += 1) {
@@ -70,7 +73,7 @@ export class GoogleCalendarClient implements CalendarGateway {
 
     if (response?.status === 401 && authRetry) {
       await invalidateGoogleToken(token);
-      return this.request<T>(path, init, interactive, false);
+      return this.request<T>(path, init, interactive, false, scopes);
     }
 
     throw new CalendarApiError(
@@ -94,6 +97,17 @@ export class GoogleCalendarClient implements CalendarGateway {
       pageToken = page.nextPageToken;
     } while (pageToken);
     return calendars;
+  }
+
+  async createCalendar(input: GoogleCalendarInput): Promise<GoogleCalendar> {
+    const calendar = await this.request<GoogleCalendarResource>(
+      '/calendars',
+      { method: 'POST', body: JSON.stringify(input) },
+      true,
+      true,
+      CALENDAR_CREATE_SCOPES,
+    );
+    return { ...calendar, accessRole: 'owner' };
   }
 
   async listManagedEvents(calendarId: string): Promise<GoogleEvent[]> {
@@ -151,4 +165,3 @@ export class GoogleCalendarClient implements CalendarGateway {
     );
   }
 }
-

@@ -1,9 +1,17 @@
-const CALENDAR_SCOPES = [
+export const CALENDAR_SCOPES = [
   'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
   'https://www.googleapis.com/auth/calendar.events.owned',
 ];
 
-export async function getGoogleToken(interactive: boolean): Promise<string> {
+export const CALENDAR_CREATE_SCOPES = [
+  ...CALENDAR_SCOPES,
+  'https://www.googleapis.com/auth/calendar.app.created',
+];
+
+export async function getGoogleToken(
+  interactive: boolean,
+  scopes: string[] = CALENDAR_SCOPES,
+): Promise<string> {
   const clientId = chrome.runtime.getManifest().oauth2?.client_id;
   if (!clientId || clientId.startsWith('replace-me')) {
     throw new Error(
@@ -12,7 +20,7 @@ export async function getGoogleToken(interactive: boolean): Promise<string> {
   }
   const result = await chrome.identity.getAuthToken({
     interactive,
-    scopes: CALENDAR_SCOPES,
+    scopes,
   });
   if (!result.token) throw new Error('Google did not return an access token.');
   return result.token;

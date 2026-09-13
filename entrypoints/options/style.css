@@ -36,6 +36,12 @@ button { cursor: pointer; border: 0; border-radius: 8px; padding: 8px 10px; back
 button:disabled { opacity: .5; cursor: wait; }
 .field { display: grid; gap: 7px; margin-top: 15px; color: #5e6962; font-size: 11px; font-weight: 700; }
 select { border: 1px solid #d4dad4; border-radius: 9px; background: #fffdf8; padding: 10px 12px; color: inherit; }
+.calendar-setup { display: grid; gap: 12px; }
+.dedicated-calendar { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 15px 16px; border: 1px solid #cfdad2; border-radius: 12px; background: #edf3ee; }
+.dedicated-calendar strong { font-size: 12px; }
+.dedicated-calendar p { max-width: 555px; margin: 4px 0 0; color: #69766e; font-size: 10px; line-height: 1.5; }
+.dedicated-calendar button { flex: 0 0 auto; }
+.dedicated-calendar button.selected:disabled { cursor: default; opacity: 1; }
 .course-card { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; background: #fffdf8; border: 1px solid #d9ded8; border-radius: 12px; padding: 14px; cursor: pointer; }
 .course-card select { grid-column: 2; width: 100%; padding: 6px 8px; font-size: 10px; }
 .course-card input, .settings-list input { accent-color: #23644b; }
@@ -49,4 +55,4 @@ select { border: 1px solid #d4dad4; border-radius: 9px; background: #fffdf8; pad
 .privacy-box { background: #e8ebe3; border-radius: 14px; padding: 18px; }
 .privacy-box p { margin: 0 0 16px; color: #56635b; font-size: 12px; line-height: 1.65; }
 .danger { background: transparent; color: #9c4134; border: 1px solid #cfaaa2; }
-@media (max-width: 780px) { main { grid-template-columns: 1fr; padding: 28px; } aside { position: static; height: auto; } aside nav, aside small { display: none; } .connection-grid, .course-grid { grid-template-columns: 1fr; } h1 { font-size: 39px; } }
+@media (max-width: 780px) { main { grid-template-columns: 1fr; padding: 28px; } aside { position: static; height: auto; } aside nav, aside small { display: none; } .connection-grid, .course-grid { grid-template-columns: 1fr; } .dedicated-calendar { align-items: flex-start; flex-direction: column; } h1 { font-size: 39px; } }

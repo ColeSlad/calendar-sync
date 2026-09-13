@@ -8,6 +8,7 @@ classes directly from rendered school schedule pages.
 
 - Manual, visit-triggered, and two-hour background synchronization.
 - Google Calendar selection limited to calendars the user owns.
+- One-click creation and selection of a dedicated Class Schedule calendar.
 - Per-course inclusion and Google event colors.
 - Deterministic event IDs and private metadata to prevent duplicates.
 - Updates for changed deadlines and submitted assignments.
@@ -46,6 +47,11 @@ npm run dev
 Follow [the Google OAuth setup guide](docs/GOOGLE_OAUTH_SETUP.md), then set
 `WXT_GOOGLE_OAUTH_CLIENT_ID`. Load `.output/chrome-mv3-dev` from
 `chrome://extensions` with Developer mode enabled.
+
+After connecting Google Calendar, settings can create a separate **Class
+Schedule** calendar. Calendar Sync recognizes one it created previously instead
+of making duplicates, and selects it as the destination for future assignment
+and class events.
 
 Useful commands:
 
