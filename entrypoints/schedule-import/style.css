@@ -1,7 +1,7 @@
 :root { color: #18241d; background: #f4f1e8; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-synthesis: none; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 .shell { width: min(1040px, calc(100% - 48px)); margin: 0 auto; padding: 50px 0 130px; }
 header { display: flex; gap: 16px; align-items: flex-start; padding-bottom: 34px; border-bottom: 1px solid #d7ddd5; }
 .brand-mark { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; background: #23644b; color: white; font: 24px Georgia, serif; }
@@ -24,8 +24,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .section-title { display: flex; gap: 13px; margin-bottom: 20px; }.section-title > span { color: #b17a4d; font: italic 17px Georgia, serif; }
 h2 { margin: 0; font: 500 24px Georgia, serif; }.section-title p { margin: 4px 0 0; color: #77837b; font-size: 11px; }
 label > span, .day-field > span { display: block; margin-bottom: 6px; color: #68756d; font-size: 10px; font-weight: 750; }
-input { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #d2d9d2; border-radius: 8px; background: #fffdf8; color: #1d2b22; }
-input:focus { outline: 2px solid #84aa95; outline-offset: 1px; }
+input, select { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #d2d9d2; border-radius: 8px; background: #fffdf8; color: #1d2b22; }
+input:focus, select:focus { outline: 2px solid #84aa95; outline-offset: 1px; }
 .term-grid { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 12px; }
 .meeting-list { display: grid; gap: 12px; }
 article { position: relative; padding: 18px; border: 1px solid #d7ddd6; border-radius: 13px; background: #fffdf8; box-shadow: 0 7px 22px rgba(37,55,44,.04); }

@@ -58,6 +58,7 @@ export interface RecurringMeetingItem {
   exclusions: DateRange[];
   confidence: number;
   warnings: string[];
+  colorId?: string;
   sourceUrl: string;
   sourceHash: string;
 }

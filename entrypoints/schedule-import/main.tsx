@@ -7,6 +7,7 @@ import { extractSchedule, getAiAvailability } from '../../lib/schedule/ai-extrac
 import { clearScheduleCapture, loadScheduleCapture } from '../../lib/schedule/draft-store';
 import { extractScheduleWithRules } from '../../lib/schedule/parser';
 import { prepareScheduleItems } from '../../lib/schedule/prepare';
+import { assignDefaultScheduleColors } from '../../lib/schedule/prepare';
 import type {
   AiAvailability,
   ScheduleExtraction,
@@ -20,6 +21,19 @@ const DAYS: Array<{ id: Weekday; label: string }> = [
   { id: 'TH', label: 'Th' }, { id: 'FR', label: 'F' }, { id: 'SA', label: 'Sa' },
   { id: 'SU', label: 'Su' },
 ];
+
+const COLORS = [
+  { id: '1', name: 'Lavender' }, { id: '2', name: 'Sage' },
+  { id: '3', name: 'Grape' }, { id: '4', name: 'Flamingo' },
+  { id: '5', name: 'Banana' }, { id: '6', name: 'Tangerine' },
+  { id: '7', name: 'Peacock' }, { id: '8', name: 'Graphite' },
+  { id: '9', name: 'Blueberry' }, { id: '10', name: 'Basil' },
+  { id: '11', name: 'Tomato' },
+];
+
+function withDefaultColors(extraction: ScheduleExtraction): ScheduleExtraction {
+  return { ...extraction, meetings: assignDefaultScheduleColors(extraction.meetings) };
+}
 
 type Notice = { tone: 'success' | 'error' | 'info'; text: string };
 
@@ -54,7 +68,7 @@ function ImportPage() {
       }
       setCapture(savedCapture);
       const rules = extractScheduleWithRules(savedCapture);
-      setExtraction(rules);
+      setExtraction(withDefaultColors(rules));
       if (stateResponse.ok && 'state' in stateResponse) setAppState(stateResponse.state);
       if (calendarResponse.ok && 'calendars' in calendarResponse) setCalendars(calendarResponse.calendars);
       try {
@@ -63,7 +77,7 @@ function ImportPage() {
         if (rules.meetings.length === 0 && availability === 'available') {
           setBusy('ai');
           const analyzed = await extractSchedule(savedCapture, { forceAi: true });
-          setExtraction(analyzed);
+          setExtraction(withDefaultColors(analyzed));
           setBusy(undefined);
         }
       } catch {
@@ -152,7 +166,7 @@ function ImportPage() {
       forceAi: true,
       onDownloadProgress: setDownloadProgress,
     });
-    setExtraction(result);
+    setExtraction(withDefaultColors(result));
     setBusy(undefined);
     setDownloadProgress(undefined);
     if (result.method === 'rules') {
@@ -274,6 +288,7 @@ function ImportPage() {
                       <label><span>Starts</span><input type="time" value={meeting.startTime} onInput={(event) => updateMeeting(meeting.id, { startTime: event.currentTarget.value })} /></label>
                       <label><span>Ends</span><input type="time" value={meeting.endTime} onInput={(event) => updateMeeting(meeting.id, { endTime: event.currentTarget.value })} /></label>
                       <label class="wide"><span>Location</span><input value={meeting.location ?? ''} onInput={(event) => updateMeeting(meeting.id, { location: event.currentTarget.value })} /></label>
+                      <label><span>Calendar color</span><select value={meeting.colorId ?? ''} onChange={(event) => updateMeeting(meeting.id, { colorId: event.currentTarget.value })}>{COLORS.map((color) => <option key={color.id} value={color.id}>{color.name}</option>)}</select></label>
                     </div>
                     {meeting.warnings.length > 0 && <p class="meeting-warning">{meeting.warnings.join(' ')}</p>}
                     {!meeting.confirmed && meeting.enabled && (

@@ -19,6 +19,7 @@ const item: RecurringMeetingItem = {
   exclusions: [{ start: '2026-11-25', end: '2026-11-27' }],
   confidence: 1,
   warnings: [],
+  colorId: '7',
   sourceUrl: 'https://app.testudo.umd.edu/#/main/schedule',
   sourceHash: 'hash',
 };
@@ -27,6 +28,7 @@ describe('schedule event mapping', () => {
   it('creates a timezone-aware recurring event with break exclusions', async () => {
     const event = await createScheduleEvent(item, DEFAULT_SETTINGS);
     expect(event.summary).toBe('CMSC131 — Object-Oriented Programming I');
+    expect(event.colorId).toBe('7');
     expect(event.start).toEqual({
       dateTime: '2026-08-31T10:00:00',
       timeZone: 'America/New_York',
@@ -51,4 +53,3 @@ describe('schedule event mapping', () => {
     expect(patch.extendedProperties?.private?.anotherApp).toBe('keep');
   });
 });
-

@@ -40,6 +40,25 @@ describe('schedule preparation', () => {
     await expect(prepareScheduleItems(value)).rejects.toThrow(/Confirm the uncertain details/);
   });
 
+  it('gives courses distinct defaults while keeping their components together', async () => {
+    const value = extraction();
+    value.meetings.push(
+      {
+        ...value.meetings[0]!, id: 'draft-2', component: 'Discussion',
+        days: ['FR'], startTime: '11:00', endTime: '11:50', occurrence: 0,
+      },
+      {
+        ...value.meetings[0]!, id: 'draft-3', courseName: 'History', courseCode: 'HIST215',
+        section: '0201', days: ['TU', 'TH'], startTime: '12:30', endTime: '13:45',
+      },
+    );
+
+    const items = await prepareScheduleItems(value);
+
+    expect(items[0]?.colorId).toBe(items[1]?.colorId);
+    expect(items[2]?.colorId).not.toBe(items[0]?.colorId);
+  });
+
   it('rejects missing term dates and invalid meeting times', async () => {
     const value = extraction();
     value.termEnd = '';

@@ -34,6 +34,7 @@ export interface ScheduleMeetingDraft {
   occurrence: number;
   confidence: number;
   warnings: string[];
+  colorId?: string;
 }
 
 export interface ScheduleExtraction {

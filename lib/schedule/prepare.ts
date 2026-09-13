@@ -1,9 +1,11 @@
 import { sha256Base32Hex, sourceHash } from '../core/hash';
 import type { RecurringMeetingItem } from '../domain/types';
 import type { ScheduleExtraction } from './types';
+import type { ScheduleMeetingDraft } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+const COURSE_COLORS = ['7', '10', '3', '6', '4', '9', '5', '11', '2', '1', '8'];
 
 function validDate(value: string): boolean {
   if (!ISO_DATE.test(value)) return false;
@@ -22,6 +24,26 @@ function validTimezone(value: string): boolean {
 
 function normalized(value: string | undefined): string {
   return (value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function courseIdentity(meeting: ScheduleMeetingDraft): string {
+  return normalized(meeting.courseCode || meeting.courseName);
+}
+
+export function assignDefaultScheduleColors(
+  meetings: ScheduleMeetingDraft[],
+): ScheduleMeetingDraft[] {
+  const courseColors = new Map<string, string>();
+  for (const meeting of meetings) {
+    const key = courseIdentity(meeting);
+    if (!courseColors.has(key)) {
+      courseColors.set(key, COURSE_COLORS[courseColors.size % COURSE_COLORS.length]!);
+    }
+  }
+  return meetings.map((meeting) => ({
+    ...meeting,
+    colorId: meeting.colorId || courseColors.get(courseIdentity(meeting)),
+  }));
 }
 
 function daysBetween(start: string, end: string): number {
@@ -51,7 +73,8 @@ export async function prepareScheduleItems(
     }
   }
 
-  const enabled = extraction.meetings.filter((meeting) => meeting.enabled);
+  const enabled = assignDefaultScheduleColors(extraction.meetings)
+    .filter((meeting) => meeting.enabled);
   if (enabled.length === 0) errors.push('Select at least one class meeting.');
   for (const meeting of enabled) {
     if (!meeting.courseName.trim()) errors.push('Every meeting needs a course name.');
@@ -93,6 +116,7 @@ export async function prepareScheduleItems(
         location: meeting.location?.trim(),
       },
       exclusions: extraction.exclusions,
+      colorId: meeting.colorId,
       sourceUrl: extraction.sourceUrl,
     };
     return {

@@ -71,7 +71,7 @@ function Options() {
           <a href="#class-schedules">Class schedules</a>
           <a href="#privacy">Privacy & data</a>
         </nav>
-        <small>Version 0.2.1 · Early development</small>
+        <small>Version 0.2.2 · Early development</small>
       </aside>
 
       <div class="content">

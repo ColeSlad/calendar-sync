@@ -102,6 +102,7 @@ function scheduleFields(item: RecurringMeetingItem): GoogleEvent {
     summary: title(item),
     description: managedDescription(item),
     location: item.meeting.location,
+    colorId: item.colorId,
     start: { dateTime: `${date}T${item.meeting.startTime}:00`, timeZone: item.timezone },
     end: { dateTime: `${date}T${item.meeting.endTime}:00`, timeZone: item.timezone },
     recurrence: recurrence(item),
@@ -137,4 +138,3 @@ export function patchScheduleEvent(
     },
   };
 }
-
